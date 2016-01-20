@@ -11,7 +11,7 @@ mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 --- 
 
-## Predict your car's gas mileage in 1974  
+## Pitch: Predict your car's gas mileage in 1974  
 
 #### How can you trade off features against economy after the oil crisis?  
 
@@ -19,7 +19,7 @@ knit        : slidify::knit2slides
 
 ---
 
-## Predict your car's gas mileage in 1974
+## The Application
 
 * Imagine that it's 1974. The oil crisis of 1973 has just happened. 
 What kind of car should you buy?
@@ -39,7 +39,7 @@ a detailed trend graph, and background on the application and its statistics.
 
 --- 
 
-## Slide 3
+## An Example
 
 * Let's consider an example.
 
@@ -51,20 +51,12 @@ a detailed trend graph, and background on the application and its statistics.
 
 ---
 
-## A Sample Prediction
+## The Prediction
 
 ```{r echo = FALSE, warning = FALSE }
 
 library(datasets)
 library(dplyr)
-
-# define function to allocate graph colors algorithmically
-# from http://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
-ggplot_colors <- function(n = 6, h = c(0, 360) + 15) {
-    if ((diff(h) %% 360) < 1)
-        h[2] <- h[2] - (360 / n)
-    hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
-}
 
 # read and clean data
 data(mtcars)
@@ -94,11 +86,16 @@ fit <-
 
 ```{r echo = FALSE, warning = FALSE }   
 
-library(ggplot2)
 library(grid)
-library(GGally)
 library(ggplot2)
-library(gridExtra)
+
+# define function to allocate graph colors algorithmically
+# from http://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+ggplot_colors <- function(n = 6, h = c(0, 360) + 15) {
+    if ((diff(h) %% 360) < 1)
+        h[2] <- h[2] - (360 / n)
+    hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+}
 
 # create data frame to hold prediction and sample input
 new_data <- data.frame(
@@ -113,24 +110,24 @@ coeff <- fit$coeff
 plot_colors <- ggplot_colors(3)
 ggplot(mtcars1, aes(x = wt, y = mpg, color = Transmission)) +
     geom_blank() +
-    geom_abline(data = subset(mtcars1, cyl == '4 Cylinder' &
-                                  Transmission == 'Manual'),
+    geom_abline(data = subset(mtcars1, 
+                              cyl == '4 Cylinder' & Transmission == 'Manual'),
                 aes(color = Transmission), size = 1.5,
                 intercept = coeff[1], slope = coeff[4]
                 ) +
-    geom_abline(data = subset(mtcars1, cyl == '4 Cylinder' &
-                                  Transmission == 'Automatic'),
+    geom_abline(data = subset(mtcars1, 
+                              cyl == '4 Cylinder' & Transmission == 'Automatic'),
                 aes(color = Transmission), size = 1.5,
                 intercept = coeff[1] + coeff[5],
                 slope = coeff[4] + coeff[6]
                 ) +
-    geom_abline(data = subset(mtcars1, cyl == '6 Cylinder' &
-                                  Transmission == 'Manual'),
+    geom_abline(data = subset(mtcars1, 
+                              cyl == '6 Cylinder' & Transmission == 'Manual'),
                 aes(color = Transmission), size = 1.5,
                 intercept = coeff[2], slope = coeff[4]
                 ) +
-    geom_abline(data = subset(mtcars1, cyl == '6 Cylinder' &
-                                  Transmission == 'Automatic'),
+    geom_abline(data = subset(mtcars1, 
+                              cyl == '6 Cylinder' & Transmission == 'Automatic'),
                 aes(color = Transmission), size = 1.5,
                 intercept = coeff[2] + coeff[5],
                 slope = coeff[4] + coeff[6]
@@ -174,7 +171,7 @@ ggplot(mtcars1, aes(x = wt, y = mpg, color = Transmission)) +
 
 --- 
 
-## Slide 5
+## Try it yourself
 
 * To try out the app yourself, please visit shinyapps.io:
 
@@ -183,6 +180,8 @@ ggplot(mtcars1, aes(x = wt, y = mpg, color = Transmission)) +
 * For technical details, the source code for this app can be found on GitHub:
 
      + https://github.com/dmodjeska/mileage-predictor
+     
+* Thank you for your time!
 
 
 

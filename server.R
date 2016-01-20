@@ -3,11 +3,7 @@
 library(datasets)
 library(ggplot2)
 library(grid)
-library(GGally)
 library(dplyr)
-
-library(ggplot2)
-library(gridExtra)
 
 # define function to allocate graph colors algorithmically
 # from http://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
