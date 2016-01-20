@@ -182,7 +182,7 @@ ggplot(mtcars1, aes(x = wt, y = mpg, color = Transmission)) +
 
 * For technical details, the source code for this app can be found on GitHub:
 
-     + https://github.com/dmodjeska
+     + https://github.com/dmodjeska/mileage-predictor
 
 
 

@@ -136,6 +136,13 @@ shinyUI(fluidPage(
                     ),
                     br(),
 
+                    p(
+                        "The source code for this app can be found on GitHub ",
+                        a(href = "https://github.com/dmodjeska/mileage-predictor", "here"),
+                        "."
+                    ),
+                    br(),
+
                     verbatimTextOutput("model_summary_text"),
                     br()
                     )
