@@ -1,0 +1,189 @@
+---
+title       : Predict your car's gas mileage in 1974
+subtitle    : How should you trade off car features against budget after the oil crisis?
+author      : David Modjeska
+job         : UX Lead at PriceMetrix in Toronto
+framework   : html5slides   # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+--- 
+
+## Predict your car's gas mileage in 1974  
+
+#### How can you trade off features against economy after the oil crisis?  
+
+###### David Modjeska  
+
+---
+
+## Predict your car's gas mileage in 1974
+
+* Imagine that it's 1974. The oil crisis of 1973 has just happened. 
+What kind of car should you buy?
+
+* Meanwhile, you've heard a lot about linear regression. What's it useful for?
+How can you see a demonstration?
+
+* In a perfect world, you could use a computer to predict a car's gas mileage,
+using linear regression to calculate the answer. Well, it's possible.
+
+* There's an application called Mileage Predictor on the Web. 
+With this app, you just enter basic information about a car.
+Then you immediately get the predicted mileage.
+
+* The application includes extra information for learning more --
+a detailed trend graph, and background on the application and its statistics.
+
+--- 
+
+## Slide 3
+
+* Let's consider an example.
+
+* Imagine that you're interested in a car with 6 cylinders, a weight of 3.5 tons, and automatic transmission.
+
+* What gas mileage will this type of car have? 
+
+* A sample screen from the Mileage Predictor shows us the answer.
+
+---
+
+## A Sample Prediction
+
+```{r echo = FALSE, warning = FALSE }
+
+library(datasets)
+library(dplyr)
+
+# define function to allocate graph colors algorithmically
+# from http://stackoverflow.com/questions/8197559/emulate-ggplot2-default-color-palette
+ggplot_colors <- function(n = 6, h = c(0, 360) + 15) {
+    if ((diff(h) %% 360) < 1)
+        h[2] <- h[2] - (360 / n)
+    hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+}
+
+# read and clean data
+data(mtcars)
+mtcars1 <- mtcars %>%
+    rename(Transmission = am)  %>%
+    mutate(Transmission = gsub("0", "Automatic", Transmission)) %>%
+    mutate(Transmission = gsub("1", "Manual", Transmission)) %>%
+    mutate(Transmission = factor(Transmission)) %>%
+    mutate(cyl = paste(cyl, " Cylinder", sep = "")) %>%
+    mutate(cyl = factor(cyl)) %>%
+    select(Transmission, cyl, wt, mpg)
+
+# fit model - multiple linear regression
+fit <-
+    lm(data = mtcars1, mpg ~ cyl + wt + Transmission + wt:Transmission - 1)
+
+    # define variable to hold sample input
+    sample_data <- data.frame(cyl = "6 Cylinder", wt = 3.5, Transmission = "Automatic")
+
+    # define variable to hold prediction
+    predict_mpg <- round(predict(fit, newdata = sample_data)[1])
+
+    predict_text <- paste("The predicted gas mileage of your car is ", round(predict_mpg), " MPG.")
+```
+
+ "The predicted gas mileage of your car is **`r predict_mpg`** MPG."
+
+```{r echo = FALSE, warning = FALSE }   
+
+library(ggplot2)
+library(grid)
+library(GGally)
+library(ggplot2)
+library(gridExtra)
+
+# create data frame to hold prediction and sample input
+new_data <- data.frame(
+    cyl = sample_data$cyl,
+    wt = sample_data$wt,
+    Transmission = sample_data$Transmission,
+    mpg = predict_mpg
+)
+
+# create plot
+coeff <- fit$coeff
+plot_colors <- ggplot_colors(3)
+ggplot(mtcars1, aes(x = wt, y = mpg, color = Transmission)) +
+    geom_blank() +
+    geom_abline(data = subset(mtcars1, cyl == '4 Cylinder' &
+                                  Transmission == 'Manual'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[1], slope = coeff[4]
+                ) +
+    geom_abline(data = subset(mtcars1, cyl == '4 Cylinder' &
+                                  Transmission == 'Automatic'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[1] + coeff[5],
+                slope = coeff[4] + coeff[6]
+                ) +
+    geom_abline(data = subset(mtcars1, cyl == '6 Cylinder' &
+                                  Transmission == 'Manual'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[2], slope = coeff[4]
+                ) +
+    geom_abline(data = subset(mtcars1, cyl == '6 Cylinder' &
+                                  Transmission == 'Automatic'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[2] + coeff[5],
+                slope = coeff[4] + coeff[6]
+                ) +
+    geom_abline(data = subset(mtcars1, cyl == '8 Cylinder' &
+                                  Transmission == 'Manual'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[3], slope = coeff[4]
+                ) +
+    geom_abline(data = subset(mtcars1, cyl == '8 Cylinder' &
+                                  Transmission == 'Automatic'),
+                aes(color = Transmission), size = 1.5,
+                intercept = coeff[3] + coeff[5],
+                slope = coeff[4] + coeff[6]
+                ) +
+    facet_wrap( ~ cyl, ncol = 3) +
+    # the following point is a dummy that causes the legend to display
+    geom_point(data = subset(mtcars1,
+                             cyl == "4 Cylinder" &
+                                 Transmission == "Automatic" &
+                                 wt == 1.5 &
+                                 mpg == 23)
+               ) +
+    geom_point(data = new_data, pch = 21,
+               fill = plot_colors[1], color = "white", size = 8
+               ) +
+    ggtitle("Your Car and General Mileage Trends\n") +
+    xlab("Weight (Tons)") +
+    ylab("Mileage (MPG)") +
+    theme(axis.title.x = element_text(vjust = -0.5)) +
+    theme(axis.title.y = element_text(vjust = 1.5)) +
+    theme(legend.position = "bottom", legend.margin = unit(1.5, "lines")) +
+    scale_color_manual(
+        values = plot_colors[2:3],
+        breaks = mtcars1$Transmission,
+        labels = mtcars1$Transmission,
+        name = "Transmission"
+    )
+
+```
+
+--- 
+
+## Slide 5
+
+* To try out the app yourself, please visit shinyapps.io:
+
+     + https://dmodjeska.shinyapps.io/Mileage_Predictor/
+
+* For technical details, the source code for this app can be found on GitHub:
+
+     + https://github.com/dmodjeska
+
+
+
+
